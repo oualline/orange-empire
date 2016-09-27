@@ -1,0 +1,46 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:		usb_mon
+# Required-Start:	$syslog
+# Required-Stop:	$syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	Usb monitor
+### END INIT INFO
+
+
+umask 022
+
+. /lib/lsb/init-functions
+
+export PATH="${PATH:+$PATH:}/home/garden/bin"
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting usb_mon " "usb_mon" || true
+	if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/usb_mon.pid --name usb_mon --exec /home/garden/bin/keep_running -- -p/var/run/usb_mon.pid /home/garden/bin/usb_mon.pl ; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+  stop)
+	log_daemon_msg "Stopping usb_mon manager" "usb_mon" || true
+	if start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/usb_mon.pid; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+
+  status)
+	status_of_proc -p /var/run/usb_mon.pid /home/garden/bin/usb_mon usb_mon && exit 0 || exit $?
+	;;
+
+  *)
+	log_action_msg "Usage: /etc/init.d/usb_mon {start|stop|status}" || true
+	exit 1
+esac
+
+exit 0

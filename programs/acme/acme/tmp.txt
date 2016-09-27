@@ -1,0 +1,6 @@
+sudo cp setup.sh first.sh acme master wind-demo short-demo long-demo /home/garden/bin
+cp: cannot create regular file ‘/home/garden/bin/acme’: Text file busy
+cp: cannot create regular file ‘/home/garden/bin/master’: Text file busy
+cp: cannot create regular file ‘/home/garden/bin/long-demo’: Text file busy
+Makefile:65: recipe for target 'install' failed
+make: *** [install] Error 1

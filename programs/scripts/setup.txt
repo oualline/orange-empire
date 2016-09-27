@@ -1,0 +1,31 @@
+How to setup your system
+
+1. Install raspbin distribution
+
+2. As root, run
+    rasp-config
+
+	Resize partition to use the full partition
+	Reboot
+
+3. Mount this USB.  As root
+
+    # mkdir /mnt/usb
+    # mount /dev/sda1 /mnt/usb
+    # mkdir /root/orange
+
+4. Extract the files
+    # (cd /;tar xf /mnt/usb/part2.tar.gz;tar xvf - ./root/scripts)
+
+5. Run the setup program
+
+	# cd /root/scripts
+
+If Acme signal
+        # bash setup-acme.sh
+
+If signal garden
+	# setup-garden.sh
+
+=====================================================================
+tar.sh is be used to create the install disk from an existing system

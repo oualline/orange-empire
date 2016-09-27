@@ -1,0 +1,78 @@
+Parts Lists and Wiring Diagram
+
+Tools needed:
+
+1) Sponge Mop -- Very useful for folding the arms when you don't want to get a ladder.
+
+2) Superclamp -- For putting the lugs on the ends of wire.
+
+3) Vold/Ohm meter
+
+You may need a soldering iron.
+
+================================================================
+Simple test board parts:
+
+1) 5A circuit breaker (120 volts)
+
+2) Power cord with plug. (Think extension cord with one end cut off)
+
+3) Light switch & electrical box for switch.
+
+4) Push button switch 
+
+5) DPDT toggle switch (120 VAC rated) -- DPDT = Double Pole, Double Throw.  Douple throw means that
+the switch controls two circuits.  Double throw means that the switch has contacts for both the 
+"On" and "Off" sides.   The switch will have 6 connection points.
+
+6) Box to house the above.
+
+7) Terminal block (a place to connect the wires.)
+
+8) Lugs to fit the switches and terminal block.
+
+9) #12 Gage or thicker wire.   Stranded makes it much easier to use.  (Not 100% sure of the 
+gauge here.)
+
+10) 1/4 plywood board on which to mount stuff. (Or whatever you wish to use.)
+
+11) Cable ties (keep things neat)
+
+================================================================
+Note: I'm using 9 pin Molex connectors to connect the light to test fixture and the controller.
+I would recommend that you do the same, but it's not required.
+
+Optional: 3 sets (Male, female) of 9pin molex connectors.  (Frys, Radio Shack)
+
+================================================================
+Controller parts list:
+
+1) Raspberry PI model B, B+ or similar.  You're looking for any model with 4 USB ports on it.
+
+2) 5V power supply for the Raspberry PI.   These are USB chargers capable of generating
+1A or more of power.  They have some that you can get with the Raspberry PI, but you can
+use any charger.
+
+3) Micro SD card.  2GB or better.  (You can hardly find less that 8GM now, but if you have
+an old one lying about we can use it.)
+
+4) Raspberry PI console cable.
+
+5) Optional: USB WiFI dongle.  (Cheap and let you connect remotely to your PI)
+
+6) Numto Labs USB 16 Relay board. 
+
+7) 12v power for the relay board. (Wall wart type will do)   This will also power the direction
+relays.
+
+8) 5v power for the relay board.   (The relay board has the option to run off the USB power.
+Do not use this option with a low powered board like the Raspberry PI)
+
+9) Quantity 2: 12v relay capable of switching 110V at 5Amps.   (You may need to purchase
+a base for the relay so you can use lugs and not have to solder on the wires)
+
+10) Quantity 2: Didoes  (Get more -- they are cheap and you may blow up a few.)
+
+11) Pushbutton
+
+Board to mount components on, box for the button and the other mechanical stuff.

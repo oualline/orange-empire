@@ -1,0 +1,9 @@
+SUBSYSTEM=="usb" \
+    ATTRS{product}=="MCP2200 USB Serial Port Emulator" \
+    OWNER="user" GROUP="user" MODE="0666" 
+
+KERNEL=="ttyACM*" SUBSYSTEM=="tty" SUBSYSTEMS=="usb" \
+    ATTRS{idVendor}=="04d8" ATTRS{idProduct}=="000a" OWNER="user" GROUP="user" MODE="0666"
+
+KERNEL=="event*" SUBSYSTEM=="input" SUBSYSTEMS=="input" \
+    ATTRS{idVendor}=="1dc3" ATTRS{idProduct}=="1001" OWNER="user" GROUP="user" MODE="0666"

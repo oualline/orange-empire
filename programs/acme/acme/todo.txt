@@ -1,0 +1,29 @@
+Software 
+
+*1. Simple quiet demo
+*1.5. Wind demo
+*2. Configure 
+*	a) Time
+*	b) Demo type
+3. Missing pictures
+*4. Figure out how to make display bright
+5. Document system
+*6. Demo code to common
+7. Better voice?
+8. Recode missing sounds
+
+--- jack benny station
+--- static picture when not in use
+
+Signal Garden In General
+
+1. Sign for broken signals
+3. Fix bell
+5. Get bell to work.
+
+
+1. Prep for paint
+2. Paint
+
+
+GIT HUB <============================================================

@@ -1,0 +1,33 @@
+
+
+Top level
+	master -- checks master on/off switch.  
+		if on -- starts acme
+	`	if off -- kills acme, resets all relays, turns LCD off
+
+acme
+	tv_off
+	Starts demo
+	Reads keyboard and if keyboard command seen,
+	    lcd on
+	    kills demo 
+	    authenticate
+	    process command
+
+demo
+	wait for button
+	  lcd on
+	  run demo
+	  lcd off
+
+------------------------
+Todo -- 
+
+1. create short demo
+2. Arm time to use config
+3. Password to config
+4. Use demo type when displaying demo
+
+
+  
+

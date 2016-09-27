@@ -1,0 +1,46 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:		garden
+# Required-Start:	$syslog
+# Required-Stop:	$syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	Signal Garden Daemon
+### END INIT INFO
+
+
+umask 022
+
+. /lib/lsb/init-functions
+
+export PATH="${PATH:+$PATH:}/home/garden/bin"
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting signal garden program" "garden" || true
+	if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/garden.pid --exec /home/garden/bin/keep_running -- -p/var/run/garden.pid /home/garden/bin/garden ; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+  stop)
+	log_daemon_msg "Stopping signal garden program" "garden" || true
+	if start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/garden.pid; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+
+  status)
+	status_of_proc -p /var/run/garden.pid /home/garden/bin/garden garden && exit 0 || exit $?
+	;;
+
+  *)
+	log_action_msg "Usage: /etc/init.d/garden {start|stop|status}" || true
+	exit 1
+esac
+
+exit 0

@@ -1,0 +1,46 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:		mcp
+# Required-Start:	$syslog
+# Required-Stop:	$syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	Signal Garden Button Handler
+### END INIT INFO
+
+
+umask 022
+
+. /lib/lsb/init-functions
+
+export PATH="${PATH:+$PATH:}/home/garden/bin"
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting signal button program" "button_mcp" || true
+	if start-stop-daemon --start --quiet --oknodo --pidfile /var/run/button_mcp.pid --exec /home/garden/bin/keep_running -- -p/var/run/button_mcp.pid /home/garden/bin/button_mcp ; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+  stop)
+	log_daemon_msg "Stopping signal button program" "button_mcp" || true
+	if start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/button_mcp.pid; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+
+  status)
+	status_of_proc -p /var/run/button_mcp.pid /home/garden/bin/button_mcp button_mcp && exit 0 || exit $?
+	;;
+
+  *)
+	log_action_msg "Usage: /etc/init.d/button_mcp {start|stop|status}" || true
+	exit 1
+esac
+
+exit 0
