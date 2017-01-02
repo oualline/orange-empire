@@ -226,7 +226,7 @@ static void* handle_h2(void* me_v) {
     struct handler_info* me = reinterpret_cast<struct handler_info*>(me_v);
     
     while (true) {
-	relay(me->name, H2_RELAY, RELAY_OFF);
+	relay(me->name, H2_RELAY, RELAY_STATE::RELAY_OFF);
 	sem_clear(&me->sem);
 	if (sem_wait(&me->sem) != 0) {
 	    if (errno == EAGAIN)
@@ -234,7 +234,7 @@ static void* handle_h2(void* me_v) {
 	    syslog(LOG_ERR, "h2: ERROR: Semaphore failed -- abort ");
 	    exit(8);
 	}
-	relay(me->name, H2_RELAY, RELAY_ON);
+	relay(me->name, H2_RELAY, RELAY_STATE::RELAY_ON);
 	sem_wait_time(&me->sem, H2_WAIT);
     }
     return (NULL);
@@ -252,7 +252,7 @@ static void generic_ww(struct handler_info* const me, const enum RELAY_NAME rela
 {
     while (true) {
 	sem_clear(&me->sem);
-	relay(me->name, relay_id, RELAY_OFF);
+	relay(me->name, relay_id, RELAY_STATE::RELAY_OFF);
 
 	if (sem_wait(&me->sem) != 0) {
 	    if (errno == EAGAIN)
@@ -272,7 +272,7 @@ static void generic_ww(struct handler_info* const me, const enum RELAY_NAME rela
 	}
 
 	// Display track open
-	relay(me->name, relay_id, RELAY_ON);
+	relay(me->name, relay_id, RELAY_STATE::RELAY_ON);
 	sleep(WW_WAIT);
     }
 }
@@ -344,9 +344,9 @@ static void* handle_car(void* me_v)
 	sem_clear(&me->sem);
 
 	if (signal_mode == SIGNAL_NORMAL) {
-	    relay(me->name, TRACK_SEM_L, RELAY_OFF);
-	    relay(me->name, TRACK_SEM_R, RELAY_OFF);
-	    relay(me->name, TRACK_CAR, RELAY_OFF);
+	    relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_OFF);
+	    relay(me->name, TRACK_SEM_R, RELAY_STATE::RELAY_OFF);
+	    relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_OFF);
 	}
 
 	if (sem_wait(&me->sem) != 0) {
@@ -359,32 +359,32 @@ static void* handle_car(void* me_v)
 
 	// Train runs from right to left
 	// First we have no train
-	relay(me->name, TRACK_SEM_L, RELAY_ON);
-	relay(me->name, TRACK_SEM_R, RELAY_ON);
-	relay(me->name, TRACK_CAR, RELAY_ON);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_SEM_R, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_ON);
 	sem_wait_time(&me->sem, CAR_WAIT);
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
 
 	// Train has reached the track car indicator
-	relay(me->name, TRACK_CAR, RELAY_OFF);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_OFF);
 	sem_wait_time(&me->sem, CAR_WAIT);
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
 
 	// Train has reached the first semaphore
-	relay(me->name, TRACK_CAR, RELAY_ON);
-	relay(me->name, TRACK_SEM_L, RELAY_OFF);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_OFF);
 	sem_wait_time(&me->sem, CAR_WAIT);
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
 
 	// Train has reached the second semaphore
-	relay(me->name, TRACK_SEM_L, RELAY_ON);
-	relay(me->name, TRACK_SEM_R, RELAY_OFF);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_SEM_R, RELAY_STATE::RELAY_OFF);
 	sem_wait_time(&me->sem, CAR_WAIT);
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
 
 	// Now we turn things off because the demo is done
-	relay(me->name, TRACK_CAR, RELAY_OFF);
-	relay(me->name, TRACK_SEM_L, RELAY_OFF);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_OFF);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_OFF);
 
     }
     return (NULL);
@@ -414,47 +414,47 @@ static void* handle_noise(void* me_v)
 	}
 
 	signal_mode = SIGNAL_LOW_NOISE;
-	relay(me->name, TRACK_SEM_L, RELAY_ON);
-	relay(me->name, TRACK_SEM_R, RELAY_ON);
-	relay(me->name, TRACK_CAR, RELAY_ON);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_SEM_R, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_ON);
 
-	relay(me->name, C3_RED, RELAY_ON);
-	relay(me->name, C3_YELLOW, RELAY_OFF);
-	relay(me->name, C3_GREEN, RELAY_OFF);
+	relay(me->name, C3_RED, RELAY_STATE::RELAY_ON);
+	relay(me->name, C3_YELLOW, RELAY_STATE::RELAY_OFF);
+	relay(me->name, C3_GREEN, RELAY_STATE::RELAY_OFF);
 	sleep(WW_WAIT);
 
 	// Train runs from right to left (it just made the track car lights)
-	relay(me->name, TRACK_CAR, RELAY_OFF);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_OFF);
 	sleep(NOISE_WAIT);
 
 	// Train is now as the left semaphore
-	relay(me->name, TRACK_CAR, RELAY_ON);
-	relay(me->name, TRACK_SEM_L, RELAY_OFF);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_OFF);
 	sleep(NOISE_WAIT);
 
 	// Car is at the right semaphore
-	relay(me->name, TRACK_SEM_L, RELAY_ON);
-	relay(me->name, TRACK_SEM_R, RELAY_OFF);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_ON);
+	relay(me->name, TRACK_SEM_R, RELAY_STATE::RELAY_OFF);
 	sleep(NOISE_WAIT);
 
 	// Car is clear of the car indicators, now just past the yellow light
-	relay(me->name, TRACK_SEM_R, RELAY_ON);
-	relay(me->name, C3_RED, RELAY_OFF);
-	relay(me->name, C3_YELLOW, RELAY_ON);
+	relay(me->name, TRACK_SEM_R, RELAY_STATE::RELAY_ON);
+	relay(me->name, C3_RED, RELAY_STATE::RELAY_OFF);
+	relay(me->name, C3_YELLOW, RELAY_STATE::RELAY_ON);
 	sleep(NOISE_WAIT);
 
 	// We just cleared the last section of trake.  Green light
-	relay(me->name, C3_YELLOW, RELAY_OFF);
-	relay(me->name, C3_GREEN, RELAY_ON);
+	relay(me->name, C3_YELLOW, RELAY_STATE::RELAY_OFF);
+	relay(me->name, C3_GREEN, RELAY_STATE::RELAY_ON);
 
 	// The track car indicators go back to demo mode
-	relay(me->name, TRACK_CAR, RELAY_OFF);
-	relay(me->name, TRACK_SEM_L, RELAY_OFF);
-	relay(me->name, TRACK_SEM_R, RELAY_OFF);
+	relay(me->name, TRACK_CAR, RELAY_STATE::RELAY_OFF);
+	relay(me->name, TRACK_SEM_L, RELAY_STATE::RELAY_OFF);
+	relay(me->name, TRACK_SEM_R, RELAY_STATE::RELAY_OFF);
 	
 	low_noise_active = false;
 	sleep(NOISE_WAIT);
-	relay(me->name, C3_GREEN, RELAY_OFF);
+	relay(me->name, C3_GREEN, RELAY_STATE::RELAY_OFF);
 	signal_mode = SIGNAL_NORMAL;
     }
     return (NULL);
@@ -478,9 +478,9 @@ static void* handle_c3(void* me_v)
 	sem_clear(&me->sem);
 
 	if (signal_mode == SIGNAL_NORMAL) {
-	    relay(me->name, C3_RED, RELAY_OFF);
-	    relay(me->name, C3_YELLOW, RELAY_OFF);
-	    relay(me->name, C3_GREEN, RELAY_OFF);
+	    relay(me->name, C3_RED, RELAY_STATE::RELAY_OFF);
+	    relay(me->name, C3_YELLOW, RELAY_STATE::RELAY_OFF);
+	    relay(me->name, C3_GREEN, RELAY_STATE::RELAY_OFF);
 	}
 
 	if (sem_wait(&me->sem) != 0) {
@@ -492,19 +492,19 @@ static void* handle_c3(void* me_v)
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
 
 	// Display red
-	relay(me->name, C3_RED, RELAY_ON);
+	relay(me->name, C3_RED, RELAY_STATE::RELAY_ON);
 	sem_wait_time(&me->sem, C3_WAIT);
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
 
 	// Display yellow
-	relay(me->name, C3_RED, RELAY_OFF);
-	relay(me->name, C3_YELLOW, RELAY_ON);
+	relay(me->name, C3_RED, RELAY_STATE::RELAY_OFF);
+	relay(me->name, C3_YELLOW, RELAY_STATE::RELAY_ON);
 	sem_wait_time(&me->sem, C3_WAIT);
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
 
 	// Display green
-	relay(me->name, C3_YELLOW, RELAY_OFF);
-	relay(me->name, C3_GREEN, RELAY_ON);
+	relay(me->name, C3_YELLOW, RELAY_STATE::RELAY_OFF);
+	relay(me->name, C3_GREEN, RELAY_STATE::RELAY_ON);
 	sem_wait_time(&me->sem, C3_WAIT);
 	if (signal_mode == SIGNAL_LOW_NOISE) continue;
     }
@@ -528,9 +528,9 @@ static void* handle_w4(void* me_v)
     while (true) {
 	sem_clear(&me->sem);
 
-	relay(me->name, W4_RED, RELAY_OFF);
-	relay(me->name, W4_YELLOW, RELAY_ON);
-	relay(me->name, W4_GREEN, RELAY_OFF);
+	relay(me->name, W4_RED, RELAY_STATE::RELAY_OFF);
+	relay(me->name, W4_YELLOW, RELAY_STATE::RELAY_ON);
+	relay(me->name, W4_GREEN, RELAY_STATE::RELAY_OFF);
 
 	if (sem_wait(&me->sem) != 0) {
 	    if (errno == EAGAIN)
@@ -540,18 +540,18 @@ static void* handle_w4(void* me_v)
 	}
 
 	// Display red
-	relay(me->name, W4_RED, RELAY_ON);
-	relay(me->name, W4_YELLOW, RELAY_OFF);
+	relay(me->name, W4_RED, RELAY_STATE::RELAY_ON);
+	relay(me->name, W4_YELLOW, RELAY_STATE::RELAY_OFF);
 	sem_wait_time(&me->sem, W4_WAIT);
 
 	// Display yellow
-	relay(me->name, W4_RED, RELAY_OFF);
-	relay(me->name, W4_YELLOW, RELAY_ON);
+	relay(me->name, W4_RED, RELAY_STATE::RELAY_OFF);
+	relay(me->name, W4_YELLOW, RELAY_STATE::RELAY_ON);
 	sem_wait_time(&me->sem, W4_WAIT);
 
 	// Display green
-	relay(me->name, W4_YELLOW, RELAY_OFF);
-	relay(me->name, W4_GREEN, RELAY_ON);
+	relay(me->name, W4_YELLOW, RELAY_STATE::RELAY_OFF);
+	relay(me->name, W4_GREEN, RELAY_STATE::RELAY_ON);
 	sem_wait_time(&me->sem, W4_WAIT);
     }
     return (NULL);
@@ -562,16 +562,16 @@ static void* handle_w4(void* me_v)
  */
 static void lamp_test(void)
 {
-    relay("lamp_test", H2_RELAY, RELAY_ON);
-    relay("lamp_test", W4_RED, RELAY_ON);
-    relay("lamp_test", W4_YELLOW, RELAY_ON);
-    relay("lamp_test", W4_GREEN, RELAY_ON);
-    relay("lamp_test", C3_RED, RELAY_ON);
-    relay("lamp_test", C3_YELLOW, RELAY_ON);
-    relay("lamp_test", C3_GREEN, RELAY_ON);
-    relay("lamp_test", TRACK_SEM_L, RELAY_ON);
-    relay("lamp_test", TRACK_SEM_R, RELAY_ON);
-    relay("lamp_test", TRACK_CAR, RELAY_ON);
+    relay("lamp_test", H2_RELAY, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", W4_RED, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", W4_YELLOW, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", W4_GREEN, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", C3_RED, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", C3_YELLOW, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", C3_GREEN, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", TRACK_SEM_L, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", TRACK_SEM_R, RELAY_STATE::RELAY_ON);
+    relay("lamp_test", TRACK_CAR, RELAY_STATE::RELAY_ON);
 }
 
 /*

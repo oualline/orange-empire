@@ -45,8 +45,8 @@ void do_demo(void)
      */
     image("slide1.fb");
     ding_and_flash_both();
-    h1.go(head::ARMS_AND_LIGHTS);
-    h2.stop(head::ARMS_AND_LIGHTS);
+    h1.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
+    h2.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
 
     sleep(5);
     /*
@@ -54,14 +54,14 @@ void do_demo(void)
      *	H2: Bell,Yellow -> Stop/Arms/Light
      */
     ding_and_flash_both();
-    h1.stop(head::ARMS_AND_LIGHTS);
+    h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
     sleep(3);
     /*
      *0:23	
      *	H1: Go/Arms/Light
      */
     ding_and_flash_both();
-    h2.go(head::ARMS_AND_LIGHTS);
+    h2.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
 
     /*0:25
      *    Display: Road Runner Acme
@@ -91,12 +91,12 @@ void do_demo(void)
      *	H1: Bell,Yellow -> Stop/Arms/Light
      */
     ding_and_flash_both();
-    h1.stop(head::ARMS_AND_LIGHTS);
+    h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
     sleep(3);
     /*0:50
      *	H2: Go/Arms/Light
      */
-    h2.go(head::ARMS_AND_LIGHTS);
+    h2.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
     /*
      *	Display: Acme light
      *
@@ -203,33 +203,33 @@ void do_demo(void)
     for (int i = 0; i < 2; ++i)
     {
 	ding_both();
-	h2.stop(head::ARMS_ONLY);
+	h2.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
 	sleep(2);
-	h1.go(head::ARMS_ONLY);
+	h1.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
 	sleep(5);
 
 	ding_both();
-	h1.stop(head::ARMS_ONLY);
+	h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
 	sleep(2);
-	h2.go(head::ARMS_ONLY);
+	h2.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
 	sleep(5);
     }
-    h1.stop(head::LIGHTS_ONLY);
-    h2.go(head::LIGHTS_ONLY);
+    h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
+    h2.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
 
     image("evening.fb");
     for (int i = 0; i < 2; ++i)
     {
 	ding_both();
-	h2.stop(head::ARMS_AND_LIGHTS);
+	h2.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
 	sleep(2);
-	h1.go(head::ARMS_AND_LIGHTS);
+	h1.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
 	sleep(5);
 
 	ding_both();
-	h1.stop(head::ARMS_AND_LIGHTS);
+	h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
 	sleep(2);
-	h2.go(head::ARMS_AND_LIGHTS);
+	h2.go(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
 	sleep(5);
     }
     // Night
@@ -239,15 +239,15 @@ void do_demo(void)
     for (int i = 0; i < 2; ++i)
     {
 	ding_both();
-	h2.stop(head::LIGHTS_ONLY);
+	h2.stop(head::SIGNAL_HOW::LIGHTS_ONLY, acme_config.get_h2_arms());
 	sleep(2);
-	h1.go(head::LIGHTS_ONLY);
+	h1.go(head::SIGNAL_HOW::LIGHTS_ONLY, acme_config.get_h1_arms());
 	sleep(5);
 
 	ding_both();
-	h1.stop(head::LIGHTS_ONLY);
+	h1.stop(head::SIGNAL_HOW::LIGHTS_ONLY, acme_config.get_h1_arms());
 	sleep(2);
-	h2.go(head::LIGHTS_ONLY);
+	h2.go(head::SIGNAL_HOW::LIGHTS_ONLY, acme_config.get_h2_arms());
 	sleep(5);
     }
     h1.lights_off();

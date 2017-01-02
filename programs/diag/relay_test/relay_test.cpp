@@ -70,10 +70,10 @@ int main()
 		status();
 		break;
 	    case '+':
-		cmd_relay(cmd.substr(1), RELAY_ON);
+		cmd_relay(cmd.substr(1), RELAY_STATE::RELAY_ON);
 		break;
 	    case '-':
-		cmd_relay(cmd.substr(1), RELAY_OFF);
+		cmd_relay(cmd.substr(1), RELAY_STATE::RELAY_OFF);
 		break;
 	    case 'r':
 		relay_reset();

@@ -18,6 +18,7 @@
 //#define RELAY_DEVICE "/dev/ttyACM0"
 #define RELAY_DEVICE1 "/dev/serial/by-id/usb-Microchip_Technology_Inc._CDC_RS-232_Emulation_Demo-if00"
 #define RELAY_DEVICE2 "/dev/serial/by-id/usb-Numato_Systems_Pvt._Ltd._Numato_Lab_16_Channel_USB_Relay_Module-if00"
+#define RELAY_DEVICE3 "/dev/serial/by-id/usb-Numato_Systems_Pvt._Ltd._Numato_Lab_2_Channel_USB_Powered_Relay_Module-if00"
 static int relay_fd = -1;	// Relay fd
 
 // Mutex so we do access one operation at a time
@@ -155,6 +156,19 @@ void relay_reset(void)
 	gpio_status(i);
 }
 
+/********************************************************
+ * find_device -- Locate the relay device		*
+ *							*
+ * Returns						*
+ * 	Name of the device				*
+ ********************************************************/
+static const char* find_device(void)
+{
+    if (access(RELAY_DEVICE1, R_OK) == 0) return (RELAY_DEVICE1);
+    if (access(RELAY_DEVICE2, R_OK) == 0) return (RELAY_DEVICE2);
+    if (access(RELAY_DEVICE3, R_OK) == 0) return (RELAY_DEVICE3);
+    throw(relay_error("Could not find device"));
+}
 
 /*
  * Open the relay device 
@@ -179,15 +193,11 @@ void relay_setup(void)
     tio.c_cc[VMIN]=1;			// Wait for at least one character
     tio.c_cc[VTIME]=5;			// Allow short time between characters
 
-    if (access(RELAY_DEVICE1, R_OK) == 0) {
-	relay_fd = open(RELAY_DEVICE1, O_RDWR);      
-	if (relay_fd < 0) 
-	    throw(relay_error("Could not open device " RELAY_DEVICE1));
-    } else {
-	relay_fd = open(RELAY_DEVICE2, O_RDWR);      
-	if (relay_fd < 0) 
-	    throw(relay_error("Could not open device " RELAY_DEVICE2));
-    }
+    const char* device = find_device();
+
+    relay_fd = open(device, O_RDWR);      
+    if (relay_fd < 0) 
+	throw(relay_error("Could not open device "));
 
     cfsetospeed(&tio,B115200);            // 115200 baud
     cfsetispeed(&tio,B115200);            // 115200 baud
@@ -270,13 +280,13 @@ void relay(
     if (verbose) {
 	syslog(LOG_INFO, "THREAD: %s RELAY %d: STATE: %s",
 	    thread_name, static_cast<int>(relay_name),
-	    (state == RELAY_ON ? "On" : "Off"));
+	    (state == RELAY_STATE::RELAY_ON ? "On" : "Off"));
     }
     if (simulate)
 	return;
     std::ostringstream cmd;
     cmd << "relay " << 
-	(state == RELAY_ON ? "on" : "off") << ' ' <<
+	(state == RELAY_STATE::RELAY_ON ? "on" : "off") << ' ' <<
 	std::hex << std::uppercase << static_cast<int>(relay_name) << std::dec;
     raw_relay(cmd.str());
 }

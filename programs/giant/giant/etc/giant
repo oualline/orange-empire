@@ -1,0 +1,47 @@
+#! /bin/sh
+
+### BEGIN INIT INFO
+# Provides:		giant
+# Required-Start:	$syslog
+# Required-Stop:	$syslog
+# Default-Start:	2 3 4 5
+# Default-Stop:		0 1 6
+# Short-Description:	Signal Garden Daemon
+### END INIT INFO
+
+
+umask 022
+
+. /lib/lsb/init-functions
+
+export PATH="${PATH:+$PATH:}/home/garden/bin"
+
+case "$1" in
+  start)
+	log_daemon_msg "Starting signal giant program" "giant" || true
+	mkdir -p /tmp/run
+	if /usr/bin/daemon --respawn --pidfile=/tmp/run/giant.pid /home/garden/bin/giant ; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+  stop)
+	log_daemon_msg "Stopping signal gaint program" "gaint" || true
+	if start-stop-daemon --stop --quiet --oknodo --pidfile /var/run/giant.pid; then
+	    log_end_msg 0 || true
+	else
+	    log_end_msg 1 || true
+	fi
+	;;
+
+  status)
+	status_of_proc -p /var/run/giant.pid /home/garden/bin/giant giant && exit 0 || exit $?
+	;;
+
+  *)
+	log_action_msg "Usage: /etc/init.d/giant {start|stop|status}" || true
+	exit 1
+esac
+
+exit 0

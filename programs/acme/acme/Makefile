@@ -1,6 +1,6 @@
 SRCS=acme.cpp hw.cpp master.cpp ../../production/signal-prog/relay.cpp long-demo.cpp wind-demo.cpp short-demo.cpp all-off.cpp demo-common.cpp
 
-CFLAGS=-DACME -g -Wall -Wextra -I../../production/signal-prog -std=c++11
+CFLAGS=-DACME_RELAYS -g -Wall -Wextra -I../../production/signal-prog -std=c++11
 
 all: all-off acme master long-demo short-demo wind-demo
 

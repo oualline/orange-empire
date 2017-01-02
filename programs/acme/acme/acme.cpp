@@ -316,51 +316,142 @@ static pid_t start_demo_process()
 }
 
 /********************************************************
- * Manually change the signals
+ * do_cmd -- Execute a single manual command 		*
+ *							*
+ * Returns						*
+ * 	Command character (if not handled by this 	*
+ * 	function)					*
+ ********************************************************/
+static char do_cmd(void)
+{
+    while (true)
+    {
+	tcflush(STDIN_FILENO, TCIFLUSH);	// Clear out previous commands
+	char cmd = tolower(get_char(NO_TIMEOUT));
+
+	switch (cmd)
+	{
+	    case 'x':
+		return (true);
+	    case '1':
+		h1.fold_arms();
+		acme_config.set_h1_arms(false);
+		break;
+	    case '2':
+		acme_config.set_h1_arms(true);
+		break;
+	    case '9':
+		h1.fold_arms();
+		acme_config.set_h2_arms(false);
+		break;
+	    case '0':
+		acme_config.set_h2_arms(true);
+		break;
+	    case 'o':
+		ding_and_flash_both();	
+		break;
+	    case 'p':
+		ding_and_flash_both();	
+		usleep(500000);
+		ding_and_flash_both();	
+		usleep(500000);
+		ding_and_flash_both();	
+		usleep(500000);
+		break;
+	    default:
+		return (false);
+	}
+    }
+}
+
+// The manual status
+enum class MANUAL_STATE {A_GO_B_STOP, A_STOP_B_STOP, A_STOP_B_GO, A_STOP_B_STOP2};
+
+// Given a state, go to the next state
+static const MANUAL_STATE next_state[] = { 
+    MANUAL_STATE::A_STOP_B_GO, 
+    MANUAL_STATE::A_STOP_B_STOP2, 
+    MANUAL_STATE::A_GO_B_STOP,
+    MANUAL_STATE::A_STOP_B_STOP 
+};
+
+/********************************************************
+ * Set the state of the signal
+ ********************************************************/
+static void set_state(const MANUAL_STATE state)
+{
+    // Quick help text
+    std::cout << "x-exit 1/2:En/Dis Br. 9/0:En/Dis Al. a/Alpine b/broadway O-Ding P-DDD ";
+
+    switch (state)
+    {
+	case MANUAL_STATE::A_GO_B_STOP:
+	    std::cout << "Alpine GO, Broadway STOP\r" << std::endl;
+	    if (h2.is_go())
+		ding_and_flash_both();	
+	    h2.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
+	    h1.go(head::SIGNAL_HOW::AS_CONF,   acme_config.get_h2_arms());
+	ding_and_flash_both();
+	    break;
+	case MANUAL_STATE::A_STOP_B_STOP:
+	    std::cout << "Alpine STOP, Broadway STOP\r" << std::endl;
+	    if (h1.is_go() || h2.is_go())
+		ding_and_flash_both();	
+	    h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
+	    h2.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
+	    break;
+	case MANUAL_STATE::A_STOP_B_GO:
+	    std::cout << "Alpine STOP, Broadway GO\r" << std::endl;
+	    if (h1.is_go())
+		ding_and_flash_both();	
+	    h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
+	    h2.go(head::SIGNAL_HOW::AS_CONF,   acme_config.get_h2_arms());
+	    break;
+	case MANUAL_STATE::A_STOP_B_STOP2:
+	    std::cout << "Alpine STOP, Broadway GO\r" << std::endl;
+
+	    if (h1.is_go() || h2.is_go())
+		ding_and_flash_both();	
+	    h1.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h1_arms());
+	    h2.stop(head::SIGNAL_HOW::AS_CONF, acme_config.get_h2_arms());
+	    break;
+	default:
+	    abort();
+    }
+}
+/********************************************************
+ * Manually change the signals				*
  ********************************************************/
 static void manual()
 {
-    std::cout << "Type X to exit.  Anything else to change signal\r" << std::endl;
+    // The state of the machine
+    MANUAL_STATE cur_state = MANUAL_STATE::A_STOP_B_STOP;
+    set_state(cur_state);
 
-    h1.stop(head::ARMS_AND_LIGHTS);
-    std::cout << "Alpine Stop\r" << std::endl;
-    h2.stop(head::ARMS_AND_LIGHTS);
-    std::cout << "Broadway Stop\r" << std::endl;
-
-    while (true)
+    bool done = false;	// Are we done yet
+    while (!done)
     {
-	tcflush(STDIN_FILENO, TCIFLUSH);
-	if (tolower(get_char(NO_TIMEOUT)) == 'x') break;
-
-	h2.go(head::ARMS_AND_LIGHTS);
-	std::cout << "Broadway Go\r" << std::endl;
-
-	tcflush(STDIN_FILENO, TCIFLUSH);
-	if (tolower(get_char(NO_TIMEOUT)) == 'x') break;
-
-	ding_and_flash_both();
-	h2.stop(head::ARMS_AND_LIGHTS);
-	std::cout << "Broadway Stop (Alpine still stop)\r" << std::endl;
-
-	tcflush(STDIN_FILENO, TCIFLUSH);
-	if (tolower(get_char(NO_TIMEOUT)) == 'x') break;
-
-	h1.go(head::ARMS_AND_LIGHTS);
-	std::cout << "Alpine Go\r" << std::endl;
-
-	tcflush(STDIN_FILENO, TCIFLUSH);
-	if (tolower(get_char(NO_TIMEOUT)) == 'x') break;
-
-	ding_and_flash_both();
-	h1.stop(head::ARMS_AND_LIGHTS);
-	std::cout << "Alpine Stop (Broadway still stop)\r" << std::endl;
+	switch (do_cmd())
+	{
+	    case 'a':
+		cur_state = MANUAL_STATE::A_GO_B_STOP;
+		break;
+	    case 'b':
+		cur_state = MANUAL_STATE::A_STOP_B_GO;
+		break;
+	    case 'x':
+		done = true;
+		break;
+	}
+	set_state(cur_state);
+	cur_state = next_state[static_cast<unsigned int>(cur_state)];
     }
     h1.fold_arms();
     h2.fold_arms();
     relay_reset();
 }
 /********************************************************
- * set_demo -- Set the demo type
+ * set_demo -- Set the demo type			*
  ********************************************************/
 static void set_demo(void)
 {
@@ -393,7 +484,7 @@ static void set_demo(void)
 }
 
 /********************************************************
- * arm_time -- Set the arm time
+ * arm_time -- Set the arm time				*
  ********************************************************/
 static void arm_time(void)
 {
@@ -461,15 +552,15 @@ static void volume(void)
     // Write the configuraiton file
     std::ofstream vol_file("vol_cmd.sh");
     if (!vol_file.bad()) {
-	vol_file << cmd;
+	vol_file << cmd.str();
 	vol_file.close();
     }
 
 }
 
 /********************************************************
- * main_loop -- process everything for the outer loop
- U********************************************************/
+ * main_loop -- process everything for the outer loop	*
+ ********************************************************/
 static void main_loop()
 {
 
@@ -526,6 +617,11 @@ static void main_loop()
 	    std::cout << "x -- Return to tourist mode\r" << std::endl;
 	    std::cout << "q -- Exit program\r" << std::endl;
 	    std::cout << "\r" << std::endl;
+	    std::cout << "1 -- Disable Alpine Arms\r" << std::endl;
+	    std::cout << "2 -- Enable Alpine Arms\r" << std::endl;
+	    std::cout << "9 -- Disable Broadway Arms\r" << std::endl;
+	    std::cout << "0 -- Enable Broadway Arms\r" << std::endl;
+	    std::cout << "\r" << std::endl;
 	    std::cout << "D -- diagnostic(Expert)\r" << std::endl;
 	    std::cout << "A -- configure arm motor time (expert)\r" << std::endl;
 	    std::cout << "Command: ";
@@ -554,6 +650,20 @@ static void main_loop()
 		case 'm':
 		    std::cout << "Starting manual mode\r" << std::endl;
 		    manual();
+		    break;
+		case '1':
+		    h1.fold_arms();
+		    acme_config.set_h1_arms(false);
+		    break;
+		case '2':
+		    acme_config.set_h1_arms(true);
+		    break;
+		case '9':
+		    h1.fold_arms();
+		    acme_config.set_h2_arms(false);
+		    break;
+		case '0':
+		    acme_config.set_h2_arms(true);
 		    break;
 		default:
 		    std::cout << "Can not understand command\r" << std::endl;

@@ -1,11 +1,12 @@
 PROGS= garden button_type button_mcp button_avr
 
 CXX=g++
-CXXFLAGS=-Wall -Wextra -ggdb
+CXXFLAGS=-std=c++11 -Wall -Wextra -ggdb -DGARDEN_RELAYS
 
 all: $(PROGS) 
 
 install: all
+	sudo chmod 755 /home/garden/bin
 	sudo cp $(PROGS) /home/garden/bin
 	sudo cp garden.sh /home/garden/bin
 	sudo chown garden:garden /home/garden/bin/garden

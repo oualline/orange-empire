@@ -1,4 +1,5 @@
-SUBDIRS=acme diag private.example rtc scripts
+# Make all the programs
+SUBDIRS=acme giant diag private.example rtc scripts production
 
 all:
 	for i in $(SUBDIRS); do (cd $$i;make all); done

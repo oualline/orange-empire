@@ -33,16 +33,16 @@ extern struct head_map h2_map;
 // Class for the manipulation of a head
 class head {
     private:
-	enum ARM_STATE {ARM_NONE, ARM_STOP, ARM_GO};
+	enum class ARM_STATE {ARM_NONE, ARM_STOP, ARM_GO};
 
 	ARM_STATE arm_state;		// Where's our arm
 	const head_map& head_info;	// How do we map things
 
     public:
 	// How do we change the stop/go aspect of the signal
-	enum SIGNAL_HOW {ARMS_ONLY, LIGHTS_ONLY, ARMS_AND_LIGHTS};
+	enum class SIGNAL_HOW {ARMS_ONLY, LIGHTS_ONLY, ARMS_AND_LIGHTS, AS_CONF};
     public:
-	head(const struct head_map& _head_info): arm_state(ARM_NONE), head_info(_head_info) {};
+	head(const struct head_map& _head_info): arm_state(ARM_STATE::ARM_NONE), head_info(_head_info) {};
 	head(const head&) = default;
 	head& operator = (const head&) = default;
 	~head(void)
@@ -50,31 +50,46 @@ class head {
 	    fold_arms();
 	}
     private:
-	void stop_arms(void) {
-	    relay("manual", head_info.direction, RELAY_OFF);
-	    relay("manual", head_info.motor, RELAY_ON);
-	    sleep_10(acme_config.get_arm_time());
-	    relay("manual", head_info.motor, RELAY_OFF);
-	    arm_state = ARM_STOP;
+	void stop_arms(int sleep_time = -1) {
+	    if (arm_state != ARM_STATE::ARM_STOP)
+	    {
+		if (sleep_time < 0)
+		    sleep_time = acme_config.get_arm_time();
+
+		sleep_10(acme_config.get_arm_time());
+		relay("manual", head_info.direction, RELAY_STATE::RELAY_OFF);
+		relay("manual", head_info.motor, RELAY_STATE::RELAY_ON);
+		sleep_10(sleep_time);
+		relay("manual", head_info.motor, RELAY_STATE::RELAY_OFF);
+		arm_state = ARM_STATE::ARM_STOP;
+	    }
 	}
-	void go_arms(void) {
-	    relay("manual", head_info.direction, RELAY_ON);
-	    relay("manual", head_info.motor, RELAY_ON);
-	    sleep_10(acme_config.get_arm_time());
-	    relay("manual", head_info.motor, RELAY_OFF);
-	    relay("manual", head_info.direction, RELAY_OFF);
-	    arm_state = ARM_GO;
+	void go_arms(int sleep_time = -1) {
+	    if (arm_state != ARM_STATE::ARM_GO) {
+		if (sleep_time < 0)
+		    sleep_time = acme_config.get_arm_time();
+
+		relay("manual", head_info.direction, RELAY_STATE::RELAY_ON);
+		relay("manual", head_info.motor, RELAY_STATE::RELAY_ON);
+		sleep_10(sleep_time);
+		relay("manual", head_info.motor, RELAY_STATE::RELAY_OFF);
+		relay("manual", head_info.direction, RELAY_STATE::RELAY_OFF);
+		arm_state = ARM_STATE::ARM_GO;
+	    }
 	}
     public:
 	void fold_arms(void);
-	void stop(enum SIGNAL_HOW how);
-	void go(enum SIGNAL_HOW how);
+	void stop(SIGNAL_HOW how, const bool enabled);
+	void go(SIGNAL_HOW how, const bool enabled);
 	void lights_off(void);
 	void bell()
 	{
-	    relay("manual", head_info.bell, RELAY_ON);
+	    relay("manual", head_info.bell, RELAY_STATE::RELAY_ON);
 	    sleep_10(100);
-	    relay("manual", head_info.bell, RELAY_OFF);
+	    relay("manual", head_info.bell, RELAY_STATE::RELAY_OFF);
+	}
+	bool is_go(void) {
+	    return (arm_state == ARM_STATE::ARM_GO);
 	}
 };
 

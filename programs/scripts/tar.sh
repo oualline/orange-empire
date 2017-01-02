@@ -9,4 +9,3 @@ if [ $PWD != /root/scripts ] ; then
 fi
 (cd / ; tar cf /mnt/usb/part2.tar.gz --gzip --one-file-system .)
 rsync -avP --delete /home /mnt/usb/orange
-rsync -avP --delete --exclude /home/pi/ACME_DVD --delete-excluded /home /mnt/usb/orange

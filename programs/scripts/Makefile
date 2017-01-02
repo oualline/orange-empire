@@ -4,7 +4,7 @@ all:
 	@echo Nothing to build
 
 install: $(FILES)
-	mkdir /root/scripts
+	mkdir -p /root/scripts
 	cp $(FILES) /root/scripts
 
 clean:

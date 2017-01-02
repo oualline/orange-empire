@@ -46,20 +46,19 @@ void do_demo(void)
      */
     image("slide1.fb");
     //say("wind.mp3");
-    ding_and_flash_both();
 
     for (int i = 0; i < 2; ++i)
     {
-	ding_both();
-	h2.stop(head::LIGHTS_ONLY);
+	ding_and_flash_both();
+	h2.stop(head::SIGNAL_HOW::LIGHTS_ONLY, false);
 	sleep(2);
-	h1.go(head::LIGHTS_ONLY);
+	h1.go(head::SIGNAL_HOW::LIGHTS_ONLY, false);
 	sleep(5);
 
-	ding_both();
-	h1.stop(head::LIGHTS_ONLY);
+	ding_and_flash_both();
+	h1.stop(head::SIGNAL_HOW::LIGHTS_ONLY, false);
 	sleep(2);
-	h2.go(head::LIGHTS_ONLY);
+	h2.go(head::SIGNAL_HOW::LIGHTS_ONLY, false);
 	sleep(5);
     }
 }

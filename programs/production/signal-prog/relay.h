@@ -13,9 +13,13 @@ class relay_error {
 };
 
 // On/off state
-enum RELAY_STATE {RELAY_OFF, RELAY_ON};
+enum class RELAY_STATE {RELAY_OFF, RELAY_ON};
 
-#ifndef ACME
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+#ifdef GARDEN_RELAYS
 #define RELAY_LIST 	                                                             \
     D(FUTURE_0, "Future 0"),		/* [0] Future relay 0                     */ \
     D(FUTURE_1, "Future 1"),		/* [1] Future relay 1                     */ \
@@ -38,7 +42,23 @@ enum RELAY_STATE {RELAY_OFF, RELAY_ON};
     D(C3_GREEN,  "C3/Green"),		/* [14] 3 color green                     */ \
                                                                                      \
     D(TRACK_CAR, "Track Car"),		/* [15] Track car (dots, light)           */ 
-#else // ACME
+
+// Relay assignments
+enum RELAY_NAME {
+#define D(X, Y) X
+    RELAY_LIST
+#undef D
+};
+
+// Last relay in existance
+static const RELAY_NAME LAST_RELAY = TRACK_CAR;
+#endif // GARDEN_RELAYS
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+
+#ifdef ACME_RELAYS
 #define RELAY_LIST 	                                                             \
     D(H1_MOTOR_POWER, "H1: Motor Power"),/* [0] H1: Arm Motor Power                */ \
     D(H1_MOTOR_DIR,   "H1: Motor Dir."),/* [1] H1: Motor Power                    */ \
@@ -61,7 +81,25 @@ enum RELAY_STATE {RELAY_OFF, RELAY_ON};
     D(H2_FOLD,        "H2: Fold"),	/* [13] H2: Fold                          */ \
     D(H2_MOTOR_DIR,   "H2: Motor Dir."),/* [14] H2: Motor Power                   */ \
     D(H2_MOTOR_POWER, "H2: Motor Power"),/* [15] H2: Arm Motor Power              */ 
-#endif // ACME
+
+// Relay assignments
+enum RELAY_NAME {
+#define D(X, Y) X
+    RELAY_LIST
+#undef D
+};
+// Last relay in existance
+static const RELAY_NAME LAST_RELAY = H2_MOTOR_POWER;
+#endif // ACME_RELAYS
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+
+#ifdef GIANT_RELAYS
+#define RELAY_LIST 	                                                             \
+    D(UPPER_SEMAPHORE, "Upper Semaphore"),		/* [0] Upper Semaphore                     */ \
+    D(LOWER_SEMAPHORE, "Lower Semaphore"),		/* [1] Lower Semaphore                     */ \
 
 // Relay assignments
 enum RELAY_NAME {
@@ -71,11 +109,12 @@ enum RELAY_NAME {
 };
 
 // Last relay in existance
-#ifndef ACME
-static const RELAY_NAME LAST_RELAY = H2_RELAY;
-#else // ACME
-static const RELAY_NAME LAST_RELAY = H2_MOTOR_POWER;
-#endif // ACME
+static const RELAY_NAME LAST_RELAY = UPPER_SEMAPHORE;
+#endif // GIANT_RELAYS
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
+/*------------------------------------------------------*/
 
 
 extern void relay_setup(void);

@@ -2,8 +2,11 @@ How to setup your system
 
 1. Install raspbin distribution
 
-2. As root, run
-    rasp-config
+2. This step is now done the first you run automatically.
+Go to next step
+
+	As root, run
+	    rasp-config
 
 	Resize partition to use the full partition
 	Reboot
@@ -26,6 +29,9 @@ If Acme signal
 
 If signal garden
 	# setup-garden.sh
+
+If rail giants 
+	# setup-giant.sh
 
 =====================================================================
 tar.sh is be used to create the install disk from an existing system

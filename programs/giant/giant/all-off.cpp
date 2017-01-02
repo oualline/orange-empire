@@ -16,9 +16,6 @@
 #include <sys/wait.h>
 
 #include "relay.h"
-#include "buttons.h"
-#include "conf.h"
-#include "hw.h"
 
 bool verbose = false;		// Chatter
 bool simulate = false;		// Do not do the work
